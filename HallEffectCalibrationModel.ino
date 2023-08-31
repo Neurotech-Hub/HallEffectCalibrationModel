@@ -4,8 +4,7 @@ by Matt Gaidica, PhD
 #include "ADS1X15.h"
 ADS1115 ADS(0x48);
 
-const int hallSensorPins[] = {A0, A1, A2}; // Sensor pin numbers
-const int numSensors = sizeof(hallSensorPins) / sizeof(hallSensorPins[0]);
+const int numSensors = 3;
 
 struct DataPoint {
   float magnetPosition;
@@ -22,12 +21,7 @@ const int numIterations = 1000; // Number of gradient descent iterations
 
 void setup() {
   Serial.begin(9600);
-
   ADS.begin();
-  
-  for (int i = 0; i < numSensors; i++) {
-    pinMode(hallSensorPins[i], INPUT);
-  }
   
   // Collect data points
   for (int i = 0; i < numDataPoints; i++) {
@@ -75,12 +69,35 @@ float getUserInput(String prompt) {
 }
 
 void performLinearRegression(float coefficients[]) {
-  // Initialize coefficients and perform gradient descent here
-  // ...
+  for (int i = 0; i <= numFeatures; i++) {
+    coefficients[i] = 0.0;
+  }
+
+  for (int iteration = 0; iteration < numIterations; iteration++) {
+    float gradients[numFeatures + 1] = {0.0};
+
+    for (int i = 0; i < numDataPoints; i++) {
+      float prediction = coefficients[0];
+      for (int j = 0; j < numFeatures; j++) {
+        prediction += coefficients[j + 1] * dataPoints[i].sensorReadings[j];
+      }
+      
+      float error = prediction - dataPoints[i].magnetPosition;
+
+      gradients[0] += error;
+      for (int j = 0; j < numFeatures; j++) {
+        gradients[j + 1] += error * dataPoints[i].sensorReadings[j];
+      }
+    }
+
+    for (int i = 0; i <= numFeatures; i++) {
+      coefficients[i] -= learningRate * gradients[i] / numDataPoints;
+    }
+  }
 }
 
 float estimateMagnetPosition(int sensorReadings[]) {
-  float estimatedPosition = coefficients[0]; // Intercept
+  float estimatedPosition = coefficients[0];
   for (int i = 0; i < numFeatures; i++) {
     estimatedPosition += coefficients[i + 1] * sensorReadings[i];
   }
