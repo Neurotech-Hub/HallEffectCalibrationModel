@@ -1,7 +1,11 @@
 /* hall effect array ADC calibration routine
 by Matt Gaidica, PhD
 */
+
+// #include <LinearRegression.h>
 #include "ADS1X15.h"
+
+// LinearRegression lr = LinearRegression();
 ADS1115 ADS(0x48);
 
 const int numSensors = 3;
@@ -37,14 +41,22 @@ void loop() {
   
   for (int i = 0; i < numSensors; i++) {
     rawSensorReadings[i] = ADS.readADC(i);
+    Serial.print(rawSensorReadings[i]);
+    Serial.print("\t");
   }
-
+  Serial.println("");
   // Estimate magnet position using linear model
   float estimatedPosition = estimateMagnetPosition(rawSensorReadings);
 
   // Print the estimated magnet position
   Serial.print("Estimated Position: ");
-  Serial.println(estimatedPosition);
+  Serial.print(estimatedPosition);
+  Serial.print(" | coeffs: ");
+  for (int i = 0; i <= numFeatures; i++) {
+    Serial.print(coefficients[i]);
+    Serial.print("\t");
+  }
+  Serial.println("");
 
   delay(1000); // Delay for 1 second before reading again
 }
@@ -52,11 +64,14 @@ void loop() {
 void collectDataPoint(int index) {
   DataPoint dp;
   dp.magnetPosition = getUserInput("Enter magnet position for data point " + String(index) + ": ");
-  
+  Serial.print(dp.magnetPosition);
+  Serial.print(" | ");
   for (int i = 0; i < numSensors; i++) {
     dp.sensorReadings[i] = ADS.readADC(i);
+    Serial.print(dp.sensorReadings[i]);
+    Serial.print("\t");
   }
-
+  Serial.println("");
   dataPoints[index] = dp;
 }
 
