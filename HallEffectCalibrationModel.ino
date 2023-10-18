@@ -15,7 +15,9 @@ void setup() {
   Serial.begin(115200);
   digitalWrite(HALL_EN_GPIO,1);
   ADS.begin();
+  ADS2.begin();
   ADS.setGain(0);
+  ADS2.setGain(0);
   f = ADS.toVoltage(1);  // voltage factor
   Serial.println("\n\Initiated...");
 }
