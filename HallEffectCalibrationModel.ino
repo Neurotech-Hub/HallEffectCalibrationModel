@@ -2,8 +2,13 @@
 
 #include "ADS1X15.h"
 
-ADS1115 ADS(0x48);
-ADS1115 ADS2(0x49);
+#define ADDR_GND 0x48
+#define ADDR_VDD 0x49
+#define ADDR_SDA 0x4A
+#define ADDR_SCL 0x4B
+
+ADS1115 ADS(ADDR_SCL);
+ADS1115 ADS2(ADDR_SDA);
 
 float f, adcVals[8];
 
